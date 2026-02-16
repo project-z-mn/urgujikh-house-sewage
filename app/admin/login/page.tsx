@@ -24,8 +24,17 @@ export default function AdminLoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      if (!data?.token || !data?.role) throw new Error("Серверийн алдаа");
-      if (data.role !== "ADMIN") throw new Error("Админ эрхгүй байна");
+      if (!data?.token) {
+        throw new Error("Серверээс токен ирсэнгүй");
+      }
+      
+      if (!data?.role) {
+        throw new Error("Серверээс эрх ирсэнгүй");
+      }
+      
+      if (data.role !== "ADMIN") {
+        throw new Error("Та админ эрхгүй хэрэглэгч байна. Админ эрхтэй хэрэглэгчээр нэвтэрнэ үү.");
+      }
 
       // ✅ localStorage ONLY
       localStorage.setItem("token", data.token);
@@ -33,7 +42,18 @@ export default function AdminLoginPage() {
 
       router.replace("/admin");
     } catch (err: any) {
-      setError(err.message || "Нэвтрэх боломжгүй");
+      console.error("Admin login error:", err);
+      
+      // Provide user-friendly error messages
+      if (err.message.includes("401") || err.message.includes("Нэвтрэх")) {
+        setError("Имэйл эсвэл нууц үг буруу байна");
+      } else if (err.message.includes("403") || err.message.includes("эрхгүй")) {
+        setError(err.message);
+      } else if (err.message.includes("Серверийн")) {
+        setError("Серверт алдаа гарлаа. Түр хүлээгээд дахин оролдоно уу.");
+      } else {
+        setError(err.message || "Нэвтрэх боломжгүй. Дахин оролдоно уу.");
+      }
     } finally {
       setLoading(false);
     }
