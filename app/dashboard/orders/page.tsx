@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { apiFetchAuth } from "@/lib/api";
+import { apiFetchAuth, ApiError } from "@/lib/api";
 
 type Order = {
   id: number;
@@ -45,7 +45,7 @@ export default function MyOrders() {
       setError(err.message || "Захиалга татахад алдаа гарлаа");
       
       // Redirect to login if unauthorized
-      if (err.message === "Нэвтрэх шаардлагатай") {
+      if (err instanceof ApiError && err.status === 401) {
         router.push("/auth/login");
       }
     } finally {

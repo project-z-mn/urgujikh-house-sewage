@@ -3,7 +3,7 @@ const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 // Custom error class with status code
 export class ApiError extends Error {
-  constructor(public message: string, public status?: number) {
+  constructor(public message: string, public status: number) {
     super(message);
     this.name = "ApiError";
   }
@@ -24,7 +24,7 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
     } else if (res.status >= 500) {
       throw new ApiError("Серверийн алдаа", res.status);
     }
-    throw new ApiError(data?.message || "Хүсэлт амжилтгүй боллоо", res.status);
+    throw new ApiError(data?.message || "Хүсэлт амжилтгүй боллоо", res.status || 500);
   }
   return data;
 }

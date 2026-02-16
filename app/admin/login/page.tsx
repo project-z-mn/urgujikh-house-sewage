@@ -25,15 +25,15 @@ export default function AdminLoginPage() {
       });
 
       if (!data?.token) {
-        throw new Error("Серверээс токен ирсэнгүй");
+        throw new ApiError("Серверээс токен ирсэнгүй", 500);
       }
       
       if (!data?.role) {
-        throw new Error("Серверээс эрх ирсэнгүй");
+        throw new ApiError("Серверээс эрх ирсэнгүй", 500);
       }
       
       if (data.role !== "ADMIN") {
-        throw new Error("Админ эрхгүй байна");
+        throw new ApiError("Админ эрхгүй байна", 403);
       }
 
       // ✅ localStorage ONLY
@@ -49,7 +49,7 @@ export default function AdminLoginPage() {
         if (err.status === 401) {
           setError("Имэйл эсвэл нууц үг буруу байна");
         } else if (err.status === 403) {
-          setError("Хандах эрхгүй байна");
+          setError(err.message);
         } else if (err.status && err.status >= 500) {
           setError("Серверт алдаа гарлаа. Түр хүлээгээд дахин оролдоно уу.");
         } else {

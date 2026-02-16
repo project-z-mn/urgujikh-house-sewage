@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { apiFetchAuth } from "@/lib/api";
+import { apiFetchAuth, ApiError } from "@/lib/api";
 
 type Order = {
   id: number;
@@ -36,7 +36,7 @@ export default function AdminPage() {
       setError(err.message || "Захиалга татахад алдаа гарлаа");
       
       // Only redirect to login on authentication errors
-      if (err.message === "Нэвтрэх шаардлагатай" || err.message === "Хандах эрхгүй байна") {
+      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
         router.replace("/admin/login");
       }
     } finally {
