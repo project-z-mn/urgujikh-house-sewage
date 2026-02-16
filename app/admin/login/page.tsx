@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, ApiError } from "@/lib/api";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -24,8 +24,17 @@ export default function AdminLoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      if (!data?.token || !data?.role) throw new Error("Серверийн алдаа");
-      if (data.role !== "ADMIN") throw new Error("Админ эрхгүй байна");
+      if (!data?.token) {
+        throw new ApiError("Серверээс токен ирсэнгүй", 500);
+      }
+      
+      if (!data?.role) {
+        throw new ApiError("Серверээс эрх ирсэнгүй", 500);
+      }
+      
+      if (data.role !== "ADMIN") {
+        throw new ApiError("Админ эрхгүй байна", 403);
+      }
 
       // ✅ localStorage ONLY
       localStorage.setItem("token", data.token);
@@ -33,7 +42,22 @@ export default function AdminLoginPage() {
 
       router.replace("/admin");
     } catch (err: any) {
-      setError(err.message || "Нэвтрэх боломжгүй");
+      console.error("Admin login error:", err);
+      
+      // Use status code for better error handling
+      if (err instanceof ApiError) {
+        if (err.status === 401) {
+          setError("Имэйл эсвэл нууц үг буруу байна");
+        } else if (err.status === 403) {
+          setError(err.message);
+        } else if (err.status && err.status >= 500) {
+          setError("Серверт алдаа гарлаа. Түр хүлээгээд дахин оролдоно уу.");
+        } else {
+          setError(err.message || "Нэвтрэх боломжгүй. Дахин оролдоно уу.");
+        }
+      } else {
+        setError(err.message || "Нэвтрэх боломжгүй. Дахин оролдоно уу.");
+      }
     } finally {
       setLoading(false);
     }
