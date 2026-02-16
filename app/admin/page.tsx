@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetchAuth } from "@/lib/api";
 
@@ -24,7 +24,7 @@ export default function AdminPage() {
      FETCH ALL ORDERS
   ============================ */
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setError("");
       setLoading(true);
@@ -42,11 +42,11 @@ export default function AdminPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [fetchOrders]);
 
   /* ============================
      UPDATE STATUS

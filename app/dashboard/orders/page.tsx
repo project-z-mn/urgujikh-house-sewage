@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetchAuth } from "@/lib/api";
 
@@ -32,7 +32,7 @@ export default function MyOrders() {
   const [error, setError] = useState("");
   const router = useRouter();
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setError("");
       setLoading(true);
@@ -51,11 +51,11 @@ export default function MyOrders() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [fetchOrders]);
 
   const cancel = async (id: number) => {
     try {
