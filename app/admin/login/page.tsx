@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, ApiError } from "@/lib/api";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -33,7 +33,7 @@ export default function AdminLoginPage() {
       }
       
       if (data.role !== "ADMIN") {
-        throw new Error("Та админ эрхгүй хэрэглэгч байна. Админ эрхтэй хэрэглэгчээр нэвтэрнэ үү.");
+        throw new Error("Админ эрхгүй байна");
       }
 
       // ✅ localStorage ONLY
@@ -44,13 +44,17 @@ export default function AdminLoginPage() {
     } catch (err: any) {
       console.error("Admin login error:", err);
       
-      // Provide user-friendly error messages
-      if (err.message.includes("401") || err.message.includes("Нэвтрэх")) {
-        setError("Имэйл эсвэл нууц үг буруу байна");
-      } else if (err.message.includes("403") || err.message.includes("эрхгүй")) {
-        setError(err.message);
-      } else if (err.message.includes("Серверийн")) {
-        setError("Серверт алдаа гарлаа. Түр хүлээгээд дахин оролдоно уу.");
+      // Use status code for better error handling
+      if (err instanceof ApiError) {
+        if (err.status === 401) {
+          setError("Имэйл эсвэл нууц үг буруу байна");
+        } else if (err.status === 403) {
+          setError("Хандах эрхгүй байна");
+        } else if (err.status && err.status >= 500) {
+          setError("Серверт алдаа гарлаа. Түр хүлээгээд дахин оролдоно уу.");
+        } else {
+          setError(err.message || "Нэвтрэх боломжгүй. Дахин оролдоно уу.");
+        }
       } else {
         setError(err.message || "Нэвтрэх боломжгүй. Дахин оролдоно уу.");
       }

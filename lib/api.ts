@@ -1,6 +1,14 @@
 // Use environment variable for API base URL
 const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
+// Custom error class with status code
+export class ApiError extends Error {
+  constructor(public message: string, public status?: number) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 export async function apiFetch(path: string, options: RequestInit = {}) {
   const res = await fetch(`${BASE}${path}`, options);
   const data = await res.json().catch(() => ({}));
@@ -8,15 +16,15 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
   if (!res.ok) {
     // Provide better error messages based on status
     if (res.status === 401) {
-      throw new Error("Нэвтрэх шаардлагатай");
+      throw new ApiError("Нэвтрэх шаардлагатай", 401);
     } else if (res.status === 403) {
-      throw new Error("Хандах эрхгүй байна");
+      throw new ApiError("Хандах эрхгүй байна", 403);
     } else if (res.status === 404) {
-      throw new Error("Олдсонгүй");
+      throw new ApiError("Олдсонгүй", 404);
     } else if (res.status >= 500) {
-      throw new Error("Серверийн алдаа");
+      throw new ApiError("Серверийн алдаа", res.status);
     }
-    throw new Error(data?.message || "Хүсэлт амжилтгүй боллоо");
+    throw new ApiError(data?.message || "Хүсэлт амжилтгүй боллоо", res.status);
   }
   return data;
 }
@@ -37,7 +45,7 @@ export async function apiFetchAuth(path: string, options: RequestInit = {}) {
   const token = getToken();
   
   if (!token) {
-    throw new Error("Нэвтрэх шаардлагатай");
+    throw new ApiError("Нэвтрэх шаардлагатай", 401);
   }
 
   return apiFetch(path, {
