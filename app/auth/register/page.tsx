@@ -14,21 +14,24 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError("");
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-  try {
-    await apiFetch("/auth/register", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      await apiFetch("/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    router.push("/auth/login");
-  } catch (err: any) {
-    setError(err.message || "Бүртгэл амжилтгүй");
-  }
+      router.push("/auth/login");
+    } catch (err: any) {
+      setError(err.message || "Бүртгэл амжилтгүй");
+    } finally {
+      setLoading(false);
+    }
   };
-
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
@@ -38,14 +41,12 @@ export default function RegisterPage() {
       >
         <h1 className="mb-4 text-xl font-bold text-center">Бүртгүүлэх</h1>
 
-        {/* Error */}
         {error && (
           <div className="mb-3 rounded bg-red-50 p-2 text-sm text-red-600">
             {error}
           </div>
         )}
 
-        {/* Email */}
         <input
           type="email"
           placeholder="Имэйл"
@@ -55,7 +56,6 @@ export default function RegisterPage() {
           required
         />
 
-        {/* Password */}
         <input
           type="password"
           placeholder="Нууц үг"
@@ -65,8 +65,8 @@ export default function RegisterPage() {
           required
         />
 
-        {/* Submit */}
         <button
+          type="submit"
           disabled={loading}
           className={`w-full rounded py-2 text-white transition
             ${loading ? "bg-green-400" : "bg-green-600 hover:bg-green-700"}
@@ -75,7 +75,6 @@ export default function RegisterPage() {
           {loading ? "Бүртгэж байна..." : "Бүртгүүлэх"}
         </button>
 
-        {/* Login link */}
         <p className="mt-4 text-center text-sm">
           Аль хэдийн бүртгэлтэй?{" "}
           <Link href="/auth/login" className="text-blue-600 hover:underline">

@@ -17,21 +17,15 @@ export default function ForgotPasswordPage() {
     setMessage("");
 
     try {
-      const res = await apiFetch("/auth/forgot-password", {
+      await apiFetch("/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || "Алдаа гарлаа");
-      } else {
-        setMessage("📩 Хэрвээ имэйл бүртгэлтэй бол сэргээх заавар илгээгдэнэ");
-      }
-    } catch {
-      setError("Сервертэй холбогдож чадсангүй");
+      setMessage("📩 Хэрвээ имэйл бүртгэлтэй бол сэргээх заавар илгээгдэнэ");
+    } catch (err: any) {
+      setError(err.message || "Сервертэй холбогдож чадсангүй");
     } finally {
       setLoading(false);
     }
@@ -62,15 +56,16 @@ export default function ForgotPasswordPage() {
         <input
           type="email"
           placeholder="Имэйл хаяг"
-          className="mb-4 w-full rounded border p-2"
+          className="mb-4 w-full rounded border p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
 
         <button
+          type="submit"
           disabled={loading}
-          className={`w-full rounded py-2 text-white
+          className={`w-full rounded py-2 text-white transition
             ${loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"}
           `}
         >
@@ -78,7 +73,7 @@ export default function ForgotPasswordPage() {
         </button>
 
         <p className="mt-4 text-center text-sm">
-          <Link href="/auth/login" className="text-blue-600">
+          <Link href="/auth/login" className="text-blue-600 hover:underline">
             ← Нэвтрэх рүү буцах
           </Link>
         </p>

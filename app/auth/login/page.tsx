@@ -91,9 +91,15 @@ export default function UserLoginPage() {
           {loading ? "Нэвтэрч байна..." : "Нэвтрэх"}
         </button>
 
-        <p className="mt-4 text-center text-sm">
+        <p className="mt-3 text-center text-sm">
+          <Link href="/auth/forgot-password" className="text-gray-500 hover:underline">
+            Нууц үг мартсан уу?
+          </Link>
+        </p>
+
+        <p className="mt-3 text-center text-sm">
           Бүртгэлгүй юу?{" "}
-          <Link href="/auth/register" className="text-blue-600">
+          <Link href="/auth/register" className="text-blue-600 hover:underline">
             Бүртгүүлэх
           </Link>
         </p>
